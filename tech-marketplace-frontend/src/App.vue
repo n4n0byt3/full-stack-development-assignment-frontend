@@ -1,47 +1,30 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
+<!-- src/App.vue -->
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="min-h-screen flex flex-col">
+    <!-- Top nav -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20">
+            <span class="h-3 w-3 rounded-full bg-indigo-400 shadow-lg shadow-indigo-500/50" />
+          </span>
+          <span class="text-lg font-semibold tracking-tight">
+            Tech<span class="text-indigo-400">Market</span>
+          </span>
+        </div>
+        <nav class="flex items-center gap-4 text-sm text-slate-300">
+          <span class="hidden sm:inline">Signed out</span>
+        </nav>
+      </div>
+    </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    <TheWelcome />
-  </main>
+    <!-- Main router view -->
+    <main class="flex-1">
+      <router-view />
+    </main>
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
-</style>
+<script setup lang="ts">
+// nothing yet, simple shell
+</script>
