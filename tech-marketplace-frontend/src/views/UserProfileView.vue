@@ -56,9 +56,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute, RouterLink, RouterLink as RouterLinkComponent } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import api from '../api'
-import UserItemsList from '../components/UserItemsList.vue'
+// import UserItemsList from '../components/UserItemsList.vue'
 
 interface UserItem {
   item_id: number
