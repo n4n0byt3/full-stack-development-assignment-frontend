@@ -33,26 +33,26 @@
 </template>
 
 <script setup lang="ts">
-import type { ApiCategory } from '../api';
+import type { Category } from '../types'
 
 const props = defineProps<{
-  categories: ApiCategory[];
-  selectedIds: number[];
-  loading?: boolean;
-}>();
+  categories: Category[]
+  selectedIds: number[]
+  loading?: boolean
+}>()
 
 const emit = defineEmits<{
-  (e: 'update:selectedIds', value: number[]): void;
-}>();
+  (e: 'update:selectedIds', value: number[]): void
+}>()
 
 function toggle(id: number): void {
-  const set = new Set(props.selectedIds);
-  if (set.has(id)) set.delete(id);
-  else set.add(id);
-  emit('update:selectedIds', Array.from(set));
+  const set = new Set(props.selectedIds)
+  if (set.has(id)) set.delete(id)
+  else set.add(id)
+  emit('update:selectedIds', Array.from(set))
 }
 
 function toggleAll(): void {
-  emit('update:selectedIds', []);
+  emit('update:selectedIds', [])
 }
 </script>

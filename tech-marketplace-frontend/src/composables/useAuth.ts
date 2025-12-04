@@ -1,30 +1,48 @@
-import { ref, computed } from 'vue';
-import { apiLogin, apiLogout, ApiLoginResponse } from '../api';
+// src/composables/useAuth.ts
+import { computed, ref } from 'vue'
+import api from '../api'
 
-const userId = ref<string | null>(localStorage.getItem('user_id'));
-const token = ref<string | null>(localStorage.getItem('session_token'));
+const userId = ref<number | null>(null)
+const sessionToken = ref<string | null>(null)
+
+const isAuthenticated = computed(() => !!sessionToken.value)
+
+// ✅ NEW: expose currentUserId as a computed
+const currentUserId = computed(() => userId.value)
 
 export function useAuth() {
-  const isLoggedIn = computed<boolean>(() => !!token.value);
+  async function login(email: string, password: string) {
+    const res = await api.post<{ user_id: number; session_token: string }>('/login', {
+      email,
+      password,
+    })
 
-  async function login(credentials: { email: string; password: string }): Promise<ApiLoginResponse> {
-    const data = await apiLogin(credentials);
-    userId.value = String(data.user_id);
-    token.value = data.session_token;
-    return data;
+    userId.value = res.data.user_id
+    sessionToken.value = res.data.session_token
+
+    api.defaults.headers.common['X-Authorization'] = res.data.session_token
   }
 
-  async function logout(): Promise<void> {
-    await apiLogout();
-    userId.value = null;
-    token.value = null;
+  async function logout() {
+    try {
+      if (sessionToken.value) {
+        await api.post('/logout')
+      }
+    } catch {
+      // ignore
+    } finally {
+      userId.value = null
+      sessionToken.value = null
+      delete api.defaults.headers.common['X-Authorization']
+    }
   }
 
   return {
     userId,
-    token,
-    isLoggedIn,
+    sessionToken,
+    isAuthenticated,
+    currentUserId,
     login,
     logout,
-  };
+  }
 }

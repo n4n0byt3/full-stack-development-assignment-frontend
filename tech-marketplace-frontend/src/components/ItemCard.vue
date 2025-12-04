@@ -1,38 +1,46 @@
+<!-- src/components/ItemCard.vue -->
 <template>
-  <div
-    class="group rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/60 hover:bg-slate-900 transition-colors p-4 flex flex-col justify-between"
+  <RouterLink
+    :to="`/item/${item.item_id}`"
+    class="group flex flex-col rounded-xl border border-slate-800 bg-slate-900/70 p-3 text-xs
+           hover:border-indigo-500/60 hover:bg-slate-900 transition-colors"
   >
-    <div>
-      <h3 class="text-sm font-semibold mb-1 line-clamp-2 group-hover:text-cyan-300">
+    <div class="mb-2 flex items-start justify-between gap-2">
+      <h3 class="line-clamp-2 text-[13px] font-semibold text-slate-50 group-hover:text-indigo-300">
         {{ item.name }}
       </h3>
-      <p class="text-xs text-slate-400 line-clamp-3 mb-2">
-        {{ item.description }}
-      </p>
     </div>
 
-    <div class="mt-3 flex items-center justify-between text-xs">
-      <div class="flex flex-col">
-        <span class="text-slate-400">Ends</span>
-        <span class="font-mono text-slate-200">
-          {{ new Date(item.end_date).toLocaleString() }}
-        </span>
-      </div>
-      <RouterLink
-        :to="`/item/${item.item_id}`"
-        class="px-3 py-1 rounded-md bg-cyan-500 text-slate-900 font-semibold text-xs hover:bg-cyan-400"
-      >
-        View
-      </RouterLink>
+    <p class="mb-3 line-clamp-2 text-[11px] text-slate-400">
+      {{ item.description }}
+    </p>
+
+    <div class="mt-auto flex items-center justify-between text-[11px] text-slate-500">
+      <span>Item #{{ item.item_id }}</span>
+      <span>
+        Ends
+        <time :datetime="endDateIso">
+          {{ formattedEnd }}
+        </time>
+      </span>
     </div>
-  </div>
+  </RouterLink>
 </template>
 
 <script setup lang="ts">
-import type { ApiItemSummary } from '../api';
-import { RouterLink } from 'vue-router';
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import type { ItemSummary } from '../types'
 
-defineProps<{
-  item: ApiItemSummary;
-}>();
+const props = defineProps<{
+  item: ItemSummary
+}>()
+
+const endDateIso = computed(() => new Date(props.item.end_date).toISOString())
+
+const formattedEnd = computed(() => {
+  const d = new Date(props.item.end_date)
+  if (Number.isNaN(d.getTime())) return 'unknown'
+  return d.toLocaleString()
+})
 </script>

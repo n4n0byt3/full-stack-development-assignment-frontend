@@ -1,128 +1,117 @@
 <!-- src/views/LoginView.vue -->
 <template>
-  <div class="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
-    <div class="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-      <h2 class="text-lg font-semibold mb-1">
-        {{ mode === 'login' ? 'Login' : 'Register' }}
-      </h2>
-      <p class="text-xs text-slate-400 mb-4">
-        {{ mode === 'login'
-          ? 'Sign in to manage your tech auctions.'
-          : 'Create an account to start listing and bidding.' }}
+  <div class="min-h-[70vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-xl shadow-black/40">
+      <h1 class="text-xl font-semibold text-slate-50 mb-1">
+        Welcome back
+      </h1>
+      <p class="text-xs text-slate-400 mb-6">
+        Sign in to manage your auctions and bids.
       </p>
 
-      <form @submit.prevent="handleSubmit" class="space-y-3 text-sm">
-        <div v-if="mode === 'register'" class="flex gap-2">
-          <div class="flex-1">
-            <label class="block text-xs text-slate-400 mb-1">First name</label>
-            <input
-              v-model="first_name"
-              type="text"
-              required
-              class="w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 focus:outline-none focus:border-cyan-500"
-            />
-          </div>
-          <div class="flex-1">
-            <label class="block text-xs text-slate-400 mb-1">Last name</label>
-            <input
-              v-model="last_name"
-              type="text"
-              required
-              class="w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 focus:outline-none focus:border-cyan-500"
-            />
-          </div>
-        </div>
+      <!-- Error banner -->
+      <div
+        v-if="formError"
+        class="mb-4 rounded-lg border border-red-500/40 bg-red-950/40 px-3 py-2 text-xs text-red-200"
+      >
+        {{ formError }}
+      </div>
 
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Email</label>
+      <form @submit.prevent="onSubmit" class="space-y-4">
+        <!-- Email -->
+        <div class="space-y-1">
+          <label for="email" class="block text-xs font-medium text-slate-300">
+            Email
+          </label>
           <input
-            v-model="email"
+            id="email"
+            v-model.trim="email"
             type="email"
+            autocomplete="email"
             required
-            class="w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 focus:outline-none focus:border-cyan-500"
+            class="w-full rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-100
+                   placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70"
+            placeholder="you@example.com"
           />
         </div>
 
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Password</label>
+        <!-- Password -->
+        <div class="space-y-1">
+          <label for="password" class="block text-xs font-medium text-slate-300">
+            Password
+          </label>
           <input
+            id="password"
             v-model="password"
             type="password"
+            autocomplete="current-password"
             required
-            minlength="8"
-            class="w-full bg-slate-950 border border-slate-700 rounded-md px-3 py-2 focus:outline-none focus:border-cyan-500"
+            class="w-full rounded-lg border border-slate-800 bg-slate-900/70 px-3 py-2 text-sm text-slate-100
+                   placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70"
+            placeholder="••••••••"
           />
         </div>
 
-        <p v-if="error" class="text-xs text-red-400">
-          {{ error }}
-        </p>
-
+        <!-- Submit -->
         <button
           type="submit"
           :disabled="submitting"
-          class="w-full mt-2 px-3 py-2 rounded-md bg-cyan-500 text-slate-900 font-semibold text-sm hover:bg-cyan-400 disabled:opacity-50"
+          class="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-indigo-500 px-3 py-2
+                 text-sm font-medium text-white shadow-md shadow-indigo-500/40 transition
+                 hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {{ submitting ? 'Please wait...' : mode === 'login' ? 'Login' : 'Register' }}
+          <span v-if="!submitting">Sign in</span>
+          <span v-else>Signing in…</span>
         </button>
       </form>
 
-      <div class="mt-4 text-xs text-slate-400 flex justify-between">
-        <button
-          class="hover:text-cyan-300"
-          @click="toggleMode"
-        >
-          {{ mode === 'login' ? 'Need an account? Register' : 'Already have an account? Login' }}
-        </button>
-      </div>
+      <p class="mt-4 text-[11px] text-slate-500">
+        Don’t have an account?
+        <RouterLink to="/register" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2">
+          Create one
+        </RouterLink>
+        .
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '../composables/useAuth';
-import { apiRegister } from '../api';
+import { ref } from 'vue'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 
-const router = useRouter();
-const { login } = useAuth();
+const router = useRouter()
+const route = useRoute()
+const { login } = useAuth()
 
-type Mode = 'login' | 'register';
+const email = ref('')
+const password = ref('')
+const submitting = ref(false)
+const formError = ref<string | null>(null)
 
-const mode = ref<Mode>('login');
-const first_name = ref<string>('');
-const last_name = ref<string>('');
-const email = ref<string>('');
-const password = ref<string>('');
-const error = ref<string>('');
-const submitting = ref<boolean>(false);
+async function onSubmit() {
+  formError.value = null
 
-function toggleMode(): void {
-  mode.value = mode.value === 'login' ? 'register' : 'login';
-  error.value = '';
-}
+  if (!email.value || !password.value) {
+    formError.value = 'Please enter both email and password.'
+    return
+  }
 
-async function handleSubmit(): Promise<void> {
-  submitting.value = true;
-  error.value = '';
+  submitting.value = true
   try {
-    if (mode.value === 'register') {
-      await apiRegister({
-        first_name: first_name.value,
-        last_name: last_name.value,
-        email: email.value,
-        password: password.value,
-      });
-    }
+    await login(email.value, password.value)
 
-    await login({ email: email.value, password: password.value });
-    router.push('/');
-  } catch (e) {
-    const err = e as Error;
-    error.value = err.message || 'Something went wrong';
+    // Optional redirect behaviour: /login?redirect=/something
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
+  } catch (err: any) {
+    const msg =
+      err?.response?.data?.error_message ||
+      'Login failed. Please check your email and password.'
+    formError.value = msg
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
 }
 </script>
